@@ -1,34 +1,31 @@
-name: Deploy to GitHub Pages
+name: Save Data to CSV
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
 
 jobs:
-  deploy:
+  save-csv:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: '14'
+    - name: Create data.csv
+      run: |
+        echo "date,category,amount" > data.csv
+        # Tambahkan data CSV yang Anda inginkan di sini
+        echo "2023-07-15,food,10000" >> data.csv
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build the project
-      run: npm run build
-
-    - name: Create config.js
-      run: echo "const CONFIG = { GOOGLE_APPS_SCRIPT_URL: '${{ secrets.GOOGLE_APPS_SCRIPT_URL }}' };" > ./config.js
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
+    - name: Commit and push CSV
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git add data.csv
+        git commit -m "Update data.csv"
+        git push
